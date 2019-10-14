@@ -1,0 +1,46 @@
+[temip@NVMBD1CGB310V02 bin]$ cat temip_ram_cpu_utilization-report.sh
+#!/bin/bash
+
+filepath=/data/script/temip-deployment
+
+#amlogspath=/var/opt/temip/trace
+
+# Input file
+
+FILE=$filepath/tlist.txt
+#FILE=$filepath/FTTH-temip-list.txt
+
+#Output File
+
+ofile=$filepath/output/temip-ram-cpu-util-report.csv
+
+>$ofile
+
+#echo "Tewho#Hostname#IP#Total RAM#CPUs#On Line CPU(s)#Threads per Core#Cores per Socket#Socket(s)" > $ofile #echo "Tewho,Hostname,IP,Total RAM,CPUs,On Line CPU(s),Threads per Core,Cores per Socket,Socket(s)" > $ofile echo "Tewho,Hostname,IP,Total RAM,Free RAM,Idle CPU" > $ofile
+
+cat $FILE | while read line
+do
+        src_ip=$line
+
+#sshpass -p 'Rtinp8#y' ssh -o StrictHostKeyChecking=no house@$src_ip << 'EOF' >> $ofile #sshpass -p 'tEm1p@ji0' ssh -o StrictHostKeyChecking=no temip@$src_ip << 'EOF' >> $ofile #ssh -o StrictHostKeyChecking=no temip@$src_ip << 'EOF' >> $ofile #ssh -o StrictHostKeyChecking=no uca@$src_ip << 'EOF' >> $ofile sshpass -p 'Uca5er@0pps' ssh -o StrictHostKeyChecking=no uca@$src_ip << 'EOF' >> $ofile
+
+twho=`tewho`
+
+hname=`hostname`
+ip=`hostname -i`
+cname=`tewho | awk '{print $1}'`
+#ip=`tewho | awk '{print $NF}'`
+
+total_mem=`/usr/bin/free -h |grep -i mem |awk '{print $2}'` free_mem=`/usr/bin/free -h |grep -i mem |awk '{print $4}'` idle_cpu=`top -b -n1|grep -i cpu|awk -F "," '{print $4}'|awk '{print $1}'` #cpus=`/usr/bin/lscpu |grep -w "^CPU(s):"` #onlinecpus=`/usr/bin/lscpu |grep -w "^On-line CPU(s) list:"` #threadscore=`/usr/bin/lscpu |grep -w "^Thread(s) per core:"` #cores_socket=`/usr/bin/lscpu |grep -w "^Core(s) per socket:"` #socket=`/usr/bin/lscpu |grep -w "^Socket(s):"`
+
+#echo $twho#$hname#$ip#$mem#$cpus#$onlinecpus#$threadscore#$cores_socket#$socket
+#echo $twho,$hname,$ip,$mem,$cpus,$onlinecpus,$threadscore,$cores_socket,$socket
+echo $twho,$hname,$ip,$total_mem,$free_mem,$idle_cpu
+
+EOF
+done
+
+/bin/mailx -s 'TeMIP Server MEMORY - CPU Utilization' -r temip.pm15@ril.com -a "$ofile" Krishanm.Pandey@ril.com,Mohammad.Mazharuddin@ril.com,ritesh1.jha@ril.com,nitin1.makwana@ril.com,RJIL.OSSOpsNNMITEMIP@ril.com,rajeev22.kumar@ril.com < $ofile
+[temip@NVMBD1CGB310V02 bin]$ pwd
+/data/script/temip-deployment/bin
+[temip@NVMBD1CGB310V02 bin]$
