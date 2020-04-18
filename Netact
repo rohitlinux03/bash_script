@@ -10,3 +10,6 @@ PORT_NO=$(netstat -an | grep -i $ENTITY_IP | grep ffff | awk 'END{print}' | awk 
 mv /usr/opt/temip/mmexe/temip_nec_pix_am /usr/opt/temip/mmexe/temip_nec_pix_am_bkp
 
 MCC jio_ns:.temip.VAS_director APPLICATION "netact_am"
+
+
+MCC jio_ns:.temip.VAS_director APPLICATION "netact_am"
