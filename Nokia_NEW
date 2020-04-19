@@ -1,0 +1,40 @@
+cat file.sh
+#!/bin/bash
+
+function_port()
+{
+manage show Nokia_NetAct_System jio_ns:.ims.netidlnn0702 all a | head -n 21 > /tmp/abc.txt & sleep 5 NEW_IP=$(cat /tmp/abc.txt | grep -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | cut -d "=" -f 2 | cut -d ":" -f 1 | cut -c 3-) 
+PORT_NO=$(netstat -an | grep -i $NEW_IP | grep ffff | awk 'END{print}' | awk -F ':' '{print $5}') 
+echo "${PORT_NO}"
+}
+
+y=$(function_port)
+echo "current established port is $y"
+
+manage show dom .dm.IMS_NSN member \* | grep -i domain | sed 's/^/ show /g' | sed 's/$/ all a/g' | manage | grep -i "Entity" | awk '{print  $4, $5}' > /tmp/ENTITY.txt
+
+for i in `more /tmp/ENTITY.txt`
+do
+manage suspend  $i
+done
+
+manage stop MCC jio_ns:.temip.VAS_director APPLICATION "netact_am"
+sleep 7
+
+mv /usr/opt/temip/mmexe/NetAct_AM /usr/opt/temip/mmexe/NetAct_AM_bkp
+
+nc -l $y &
+sleep 3
+
+mv /usr/opt/temip/mmexe/NetAct_AM_bkp /usr/opt/temip/mmexe/NetAct_AM
+
+manage start MCC jio_ns:.temip.VAS_director APPLICATION "netact_am"
+sleep 7
+
+for i in `cat /tmp/entity.txt`
+do
+manage resume  $i
+sleep 3
+done
+
+echo "New establish port is :  $y"
